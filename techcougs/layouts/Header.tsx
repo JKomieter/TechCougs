@@ -18,7 +18,7 @@ function Header() {
                         <MenuIcon className='md:text-4xl text-3xl' />
                     </span>
                     <h1 className={`md:text-3xl text-[26px] font-bold ${oswald.className}`}>
-                        <a href="/" className='no-underline'>Tech Cougs</a>
+                        <a href="/" className='no-underline'>Cougar Devs</a>
                     </h1>
                 </div>
                 <div className="lg:flex flex-row items-center gap-10 hidden text-white">
