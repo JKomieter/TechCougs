@@ -30,8 +30,8 @@ function Hero() {
                 </div>
             </div>
             <div className="w-full flex justify-center items-center">
-                <div className="lg:w-[80%] md:w-full bg-white/85 min-h-32 translate-y-12 flex">
-
+                <div className="lg:w-[80%] w-full bg-white/85 min-h-32 translate-y-12 flex">
+        
                 </div>
             </div>
         </section>

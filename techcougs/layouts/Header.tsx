@@ -10,6 +10,8 @@ const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "700"] });
 function Header() {
     const pathname = usePathname();
 
+    if (pathname.includes("start_challenge") || pathname.includes("challenge")) return null;
+
     return (
         <section className='w-full bg-transparent absolute top-0'>
             <div className="w-full px-5 md:px-10 lg:px-20 py-5 flex flex-row justify-between items-center">
@@ -31,7 +33,7 @@ function Header() {
                     }
                 </div>
                 <div className="cursor-pointer">
-                    <a href='/membership' style={{ borderColor: "white", borderWidth: "2px" }} className="flex flex-row items-center gap-1 px-4 py-1 border-black rounded-md border-1 text-white">
+                    <a href='/membership' style={{ borderColor: "white", borderWidth: "2px" }} className="flex flex-row items-center gap-1 px-4 py-1 border-black rounded-md border-1 text-white hover:-translate-y-2 duration-500">
                         <PersonIcon className='text-2xl' />
                         <p className={`text-lg font-medium ${oswald.className} uppercase `}>membership</p>
                     </a>
