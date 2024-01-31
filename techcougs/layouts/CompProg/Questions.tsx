@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from 'react'
 import { Oswald } from 'next/font/google';
 import QuestionsList from './QuestionsList';
