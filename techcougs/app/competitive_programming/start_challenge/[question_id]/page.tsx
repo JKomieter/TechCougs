@@ -34,7 +34,7 @@ function Page() {
 
       getQuestion()
     
-  }, [questionId, ])
+  }, [questionId, questionsCollection, programmersCollection])
 
   return (
     <main className='min-h-screen w-full flex flex-row'>
@@ -44,4 +44,4 @@ function Page() {
   )
 }
 
-export default page
+export default Page
