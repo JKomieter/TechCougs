@@ -23,7 +23,7 @@ function Page() {
     return () => {
       unsub()
     }
-  }, [])
+  }, [leaderCollection, router]);
 
 
   return (

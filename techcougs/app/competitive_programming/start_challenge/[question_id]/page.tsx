@@ -6,11 +6,10 @@ import { usePathname } from 'next/navigation'
 import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { QuestionType } from '@/types'
-import { auth } from '@/firebase/config'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 
-function page() {
+function Page() {
   const pathname = usePathname();
   const questionId = "" + pathname.split("/")[3];
   const [question, setQuestion ] = useState<QuestionType>({} as QuestionType)
@@ -33,10 +32,9 @@ function page() {
         setQuestion(data);
     }
 
-    return () => {
       getQuestion()
-    }
-  }, [questionId])
+    
+  }, [questionId, ])
 
   return (
     <main className='min-h-screen w-full flex flex-row'>
