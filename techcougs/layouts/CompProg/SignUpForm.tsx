@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db, auth } from '@/firebase/config';
 import { useRouter } from 'next/navigation';
 import { addDoc, collection } from 'firebase/firestore';
+import axios from 'axios';
 
 
 const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "700"] });
@@ -29,28 +30,17 @@ function SignUpForm({
         setIsLoading(true)
         try {
             const { email, username, password } = data;
-            const res = await createUserWithEmailAndPassword(auth, email, password);
-
-            if (!res.user) {
-                setIsLoading(false);
-                return setIsErr(true);
-            };
-
-            const programmersCollection = collection(db, "Programmers");
-            await addDoc(programmersCollection, {
+            const res = await axios.post("/api/signup", {
                 email,
                 username,
-                disqualified: false,
-                score: 0,
-                questions_solved: [],
-                time_left: {
-                    hours: 3,
-                    minutes: 0,
-                    seconds: 0
-                },
-                questions_submitted: []
-            });
-            setTimeout(() => setIsLoading(false), 3000);
+                password
+            })
+            console.log(res.data)
+            if (res.data.message !== "It worked") {
+                setIsErr(true);
+                setIsLoading(false)
+                return;
+            }
             router.push("/competitive_programming/waiting");
         } catch (error) {
             console.log(error)

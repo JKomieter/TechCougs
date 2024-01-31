@@ -1,30 +1,66 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Oswald } from 'next/font/google';
 import QuestionsList from './QuestionsList';
-import { TimerValue, createTimeModel, useTimeModel } from 'react-compound-timer';
-import { collection, query, where } from 'firebase/firestore';
+import { createTimeModel, useTimeModel } from 'react-compound-timer';
+import { collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db, auth } from '@/firebase/config';
+import { ProgrammerType } from '@/types';
+import { useBeforeunload } from 'react-beforeunload';
+import axios from 'axios';
 
 
 const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
-const stopwatch = createTimeModel({
-    initialTime: 3000000,
-    direction: "backward",
-    startImmediately: true,
-    timeToUpdate: 250,
-});
 
 function Questions() {
-    const { value } = useTimeModel(stopwatch);
     const programmersCollection = collection(db, "Programmers");
-
+    const [ programmer, setProgrammer ] = useState<ProgrammerType>({} as ProgrammerType)
+    const [stopwatch, setStopwatch] = useState(createTimeModel({ initialTime: 3000000, direction: "backward", startImmediately: true, timeToUpdate: 250 }));
+    
     useEffect(() => {
         const getTimer = async () => {
-            const user = query(programmersCollection, where("email", "==", auth.currentUser?.email));
-            
-        }
-    }, [])
+            try {
+                const res = await axios.get("/api/checkAuthState");
+                console.log("Respond", res);
+
+                if (!res.data.user) return;
+
+                const user = query(programmersCollection, where("email", "==", res.data.user.email));
+                const userData = await getDocs(user);
+                const programmer = { id: userData.docs[0]?.id, ...userData.docs[0]?.data() } as unknown as ProgrammerType;
+                const time = programmer?.time_left;
+                console.log("Time", time);
+                setStopwatch(createTimeModel({
+                    initialTime: (time?.hours * 3600) + (time?.minutes * 60) + time?.seconds || 3000000,
+                    direction: "backward",
+                    startImmediately: true,
+                    timeToUpdate: 250,
+                }));
+
+                setProgrammer(programmer);
+            } catch (error) {
+                console.error("Error fetching timer:", error);
+            }
+        };
+
+        getTimer();
+
+    }, []);
+
+
+    const { value } = useTimeModel(stopwatch);
+
+    useBeforeunload(async () => {
+        const id = programmer.id as string
+        const programmerRef = doc(db, "Programmers", id);
+        await updateDoc(programmerRef, {
+            time: {
+                hours: value.h,
+                minutes: value.m,
+                seconds: value.s
+            }
+        })
+    });
 
     return (
         <section className='w-full h-[100vh] flex justify-center items-center px-5 md:px-10 lg:px-20 overflow-y-hidden'>
@@ -44,7 +80,7 @@ function Questions() {
                     </div>
                 </div>
                 <div className="min-h-[500px] border-white border-2">
-                    <QuestionsList />
+                    <QuestionsList programmer={programmer} />
                 </div>
             </div>
         </section>
