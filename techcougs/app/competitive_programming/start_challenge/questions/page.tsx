@@ -1,4 +1,3 @@
-"use client"
 import Header from '@/layouts/CompProg/Header';
 import React from 'react';
 import Questions from '@/layouts/CompProg/Questions';

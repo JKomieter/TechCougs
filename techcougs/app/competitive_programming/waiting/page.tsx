@@ -16,7 +16,7 @@ function Page() {
     const q = query(leaderCollection, where("status", "==", "master"));
     const unsub = onSnapshot(q, (snapshot) => {
       snapshot.forEach((field) => {
-        if (field.data().start) return router.push("/competitive_programming/start_challenge")
+        if (field.data().start) return router.push("/competitive_programming/start_challenge/questions")
       })
     })
 

@@ -1,10 +1,11 @@
 "use client";
-import React, { ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { createContext } from 'react';
 import { auth } from '@/firebase/config';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import axios from 'axios';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext({});
 
@@ -15,30 +16,20 @@ function AuthProvider({
 }) {
     const router = useRouter();
     const pathname = usePathname();
+    const [authData, setAuthData] = useState({});
 
     useEffect(() => {
-        const checkIfStillAuth = async () => {
-            try {
-                const res = await axios.get("/api/checkAuthState");
-                const path = pathname.split("/");
-                const data = await res.data;
-                console.log("Repond", res)
-                if (data.user === null && (path.includes("start_challenge") || path.includes("waiting"))) {
-                    router.push("/competitive_programming/signup");
-                }
-            } catch (error) {
-                console.error("Error checking auth state:", error);
-            }
-        };
-        checkIfStillAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (!user && pathname.includes("start_challenge")) router.push("/competitive_programming/signup")
+        })
+    }, [pathname, auth])
 
-    }, [usePathname]);
 
-  return (
-    <AuthContext.Provider value={[]}>
-        {children}
-    </AuthContext.Provider>
-  )
+    return (
+        <AuthContext.Provider value={[authData]}>
+            {children}
+        </AuthContext.Provider>
+    )
 }
 
-export  {AuthContext, AuthProvider}
+export { AuthContext, AuthProvider }

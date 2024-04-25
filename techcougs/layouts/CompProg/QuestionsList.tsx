@@ -74,8 +74,9 @@ function QuestionsList({
                         </TableRow>
                     </TableHead>
                     <TableBody className='overflow-scroll'>
-                        {questions.map((q) => (
+                        {questions.map((q, i) => (
                             <TableRow
+                                key={i}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                 className='bg-black py-5 overflow-y-scroll'
                             >
@@ -86,7 +87,7 @@ function QuestionsList({
                                 <TableCell align="right"><h3 className={`${oswald.className} text-lg text-white font-semibold text-left`}>{SolvedOrSubmitted(q.id, programmer.questions_solved)}</h3></TableCell>
                                 <TableCell align="right"><h3 className={`${oswald.className} text-lg text-white font-semibold text-left`}>{SolvedOrSubmitted(q.id, programmer.questions_submitted)}</h3></TableCell>
                                 <TableCell align="right">
-                                    <button className='flex flex-row gap-2 items-center px-10 py-2 bg-[#0077cc] rounded-md' onClick={() => router.push(`/competitive_programming/start_challenge/${q.id}`)}>
+                                    <button className='flex flex-row gap-2 items-center px-10 py-2 bg-[#0077cc] rounded-md' onClick={() => router.push(`/competitive_programming/start_challenge/question_details/${q.id}`)}>
                                         <p className={`${oswald.className} text-xl text-white`}>View</p>
                                     </button>
                                 </TableCell>

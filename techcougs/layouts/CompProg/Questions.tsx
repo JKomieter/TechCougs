@@ -6,8 +6,7 @@ import { createTimeModel, useTimeModel } from 'react-compound-timer';
 import { collection, doc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db, auth } from '@/firebase/config';
 import { ProgrammerType } from '@/types';
-import { useBeforeunload } from 'react-beforeunload';
-import axios from 'axios';
+import { usePathname } from 'next/navigation';
 
 
 const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "700"] });
@@ -16,21 +15,19 @@ const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "700"] });
 function Questions() {
     const programmersCollection = collection(db, "Programmers");
     const [ programmer, setProgrammer ] = useState<ProgrammerType>({} as ProgrammerType)
-    const [stopwatch, setStopwatch] = useState(createTimeModel({ initialTime: 3000000, direction: "backward", startImmediately: true, timeToUpdate: 250 }));
-    
+    const [stopwatch, setStopwatch] = useState(createTimeModel({ initialTime: 0, direction: "backward", startImmediately: true, timeToUpdate: 250 }));
+    const pathname = usePathname();
+
     useEffect(() => {
         const getTimer = async () => {
             try {
-                const res = await axios.get("/api/checkAuthState");
-                console.log("Respond", res);
-
-                if (!res.data.user) return;
-
-                const user = query(programmersCollection, where("email", "==", res.data.user.email));
+                if (!auth.currentUser) return;
+                console.log(auth.currentUser)
+                const user = query(programmersCollection, where("email", "==", auth?.currentUser?.email));
                 const userData = await getDocs(user);
                 const programmer = { id: userData.docs[0]?.id, ...userData.docs[0]?.data() } as unknown as ProgrammerType;
                 const time = programmer?.time_left;
-                console.log("Time", time);
+                console.log("Time", time.minutes * 3600);
                 setStopwatch(createTimeModel({
                     initialTime: (time?.hours * 3600) + (time?.minutes * 60) + time?.seconds || 3000000,
                     direction: "backward",
@@ -46,22 +43,28 @@ function Questions() {
 
         getTimer();
 
-    }, []);
+    }, [auth?.currentUser, pathname]);
 
+    useEffect(() => {
+        const postLatestTime = async () => {
+            const id = programmer.id as string
+            console.log(id)
+            if (!id) return;
+            const programmerRef = doc(db, "Programmers", id);
+            await updateDoc(programmerRef, {
+                time_left: {
+                    hours: value.h,
+                    minutes: value.m,
+                    seconds: value.s
+                }
+            })
+            console.log("unloading")
+        }
+
+        postLatestTime()
+    }, [pathname, programmer])
 
     const { value } = useTimeModel(stopwatch);
-
-    useBeforeunload(async () => {
-        const id = programmer.id as string
-        const programmerRef = doc(db, "Programmers", id);
-        await updateDoc(programmerRef, {
-            time: {
-                hours: value.h,
-                minutes: value.m,
-                seconds: value.s
-            }
-        })
-    });
 
     return (
         <section className='w-full h-[100vh] flex justify-center items-center px-5 md:px-10 lg:px-20 overflow-y-hidden'>

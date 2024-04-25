@@ -30,22 +30,26 @@ function SignUpForm({
         setIsLoading(true)
         try {
             const { email, username, password } = data;
-            const res = await axios.post("/api/signup", {
+            await createUserWithEmailAndPassword(auth, email, password);
+            const programmersCollection = collection(db, "Programmers");
+            await addDoc(programmersCollection, {
                 email,
                 username,
-                password
-            })
-            console.log(res.data)
-            if (res.data.message !== "It worked") {
-                setIsErr(true);
-                setIsLoading(false)
-                return;
-            }
+                disqualified: false,
+                score: 0,
+                questions_solved: [],
+                time_left: {
+                    hours: 3600,
+                    minutes: 0,
+                    seconds: 0
+                },
+                questions_submitted: []
+            });
             router.push("/competitive_programming/waiting");
         } catch (error) {
-            console.log(error)
-            setIsErr(true)
-            setIsLoading(false)
+            console.log(error);
+            setIsErr(true);
+            setIsLoading(false);
         }
     }
 
